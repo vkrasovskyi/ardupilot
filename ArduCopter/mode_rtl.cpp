@@ -2,6 +2,43 @@
 
 #if MODE_RTL_ENABLED == ENABLED
 
+bool Copter::ModeRTL::isRTLInitialized = false;
+Vector3f Copter::ModeRTL::initial_heading;
+
+/*
+ * Init RTL without GPS
+ */
+void ModeRTL::init_rtl_without_gps()
+{
+    if (!isRTLInitialized) {
+        initial_heading = copter.ahrs.get_dcm_matrix().col.z;
+        isRTLInitialized = true;
+    }
+}
+
+void ModeRTL::run_without_gps()
+{
+    init_rtl_without_gps();
+
+    // 1. Зависнути
+    copter.motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::THROTTLE_UNLIMITED);
+    copter.attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(0, 0, 0);
+
+    // 2. Набрати висоту
+    float target_altitude = g.rtl_climb_min; // або інше значення з налаштувань RTL
+    copter.pos_control->set_alt_target(target_altitude);
+
+    // 3. Розвертання на 180 градусів
+    Vector3f current_heading = copter.ahrs.get_dcm_matrix().col.z;
+    float yaw_error = wrap_180_cd(atan2f(initial_heading.y, initial_heading.x) * 100 - atan2f(current_heading.y, current_heading.x) * 100 + 18000); // знаходимо різницю в 180 градусів
+    copter.attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(0, 0, yaw_error);
+
+    // 4. Повертання в протилежному напрямку
+    float desired_roll = 0, desired_pitch = 10; // приклад: 10 градусів нахилу для повертання
+    copter.attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(desired_roll, desired_pitch, yaw_error);
+}
+
+
 /*
  * Init and run calls for RTL flight mode
  *
@@ -12,6 +49,11 @@
 // rtl_init - initialise rtl controller
 bool ModeRTL::init(bool ignore_checks)
 {
+    if (!copter.position_ok()) {
+        init_rtl_without_gps();
+        return true;
+    }
+
     if (!ignore_checks) {
         if (!AP::ahrs().home_is_set()) {
             return false;
@@ -62,6 +104,12 @@ ModeRTL::RTLAltType ModeRTL::get_alt_type() const
 void ModeRTL::run(bool disarm_on_land)
 {
     if (!motors->armed()) {
+        return;
+    }
+
+    // Виконання RTL без GPS, якщо GPS недоступний
+    if (!copter.position_ok()) {
+        run_without_gps();
         return;
     }
 
