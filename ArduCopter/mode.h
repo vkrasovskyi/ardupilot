@@ -93,6 +93,7 @@ public:
     virtual bool set_speed_xy(float speed_xy_cms) {return false;}
     virtual bool set_speed_up(float speed_xy_cms) {return false;}
     virtual bool set_speed_down(float speed_xy_cms) {return false;}
+    virtual bool is_gps_available() {return false;}
 
     int32_t get_alt_above_ground_cm(void);
 
@@ -1012,7 +1013,7 @@ public:
     bool limit_check();
 
     bool is_taking_off() const override;
-    
+
     bool set_speed_xy(float speed_xy_cms) override;
     bool set_speed_up(float speed_up_cms) override;
     bool set_speed_down(float speed_down_cms) override;
@@ -1323,6 +1324,8 @@ public:
     bool set_speed_up(float speed_up_cms) override;
     bool set_speed_down(float speed_down_cms) override;
 
+    bool is_gps_available() override;
+
     // RTL states
     enum class SubMode : uint8_t {
         STARTING,
@@ -1340,7 +1343,6 @@ public:
     virtual bool is_landing() const override;
 
     void restart_without_terrain();
-    void run_without_gps();
 
     // enum for RTL_ALT_TYPE parameter
     enum class RTLAltType : int8_t {
@@ -1370,16 +1372,13 @@ private:
 
     void increase_throttle(float alt_diff);
     void climb_start();
-    void climb_nogps_start();
     void return_start();
-    void return_nogps_start();
     void climb_return_run();
     void climb_return_nogps_run();
     void loiterathome_start();
-    void loiterathome_nogps_start();
     void loiterathome_run();
-    void loiterathome_nogps_run();
     void build_path();
+    void move_to_home();
     void compute_return_target();
 
     SubMode _state = SubMode::INITIAL_CLIMB;  // records state of rtl (initial climb, returning home, etc)
@@ -1762,7 +1761,7 @@ protected:
     uint32_t last_log_ms;   // system time of last time desired velocity was logging
 };
 
-class ModeZigZag : public Mode {        
+class ModeZigZag : public Mode {
 
 public:
     ModeZigZag(void);
