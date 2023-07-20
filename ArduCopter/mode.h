@@ -1340,6 +1340,7 @@ public:
     virtual bool is_landing() const override;
 
     void restart_without_terrain();
+    void run_without_gps();
 
     // enum for RTL_ALT_TYPE parameter
     enum class RTLAltType : int8_t {
@@ -1367,16 +1368,25 @@ protected:
 
 private:
 
+    void increase_throttle(float alt_diff);
     void climb_start();
+    void climb_nogps_start();
     void return_start();
+    void return_nogps_start();
     void climb_return_run();
+    void climb_return_nogps_run();
     void loiterathome_start();
+    void loiterathome_nogps_start();
     void loiterathome_run();
+    void loiterathome_nogps_run();
     void build_path();
     void compute_return_target();
 
     SubMode _state = SubMode::INITIAL_CLIMB;  // records state of rtl (initial climb, returning home, etc)
     bool _state_complete = false; // set to true if the current state is completed
+
+    bool isRTLInitialized = false;
+    Vector3f initial_heading;
 
     struct {
         // NEU w/ Z element alt-above-ekf-origin unless use_terrain is true in which case Z element is alt-above-terrain
