@@ -229,8 +229,6 @@ void ModeRTL::climb_return_nogps_run() {
 // move_to_home - implements the initial climb, return home and descent portions of RTL which all rely on the wp controller
 //      called by rtl_run at 100hz or more
 void ModeRTL::move_to_home() {
-    float desired_pitch = 15;
-
     // if not armed set throttle to zero and exit immediately
     if (is_disarmed_or_landed()) {
         make_safe_ground_handling();
@@ -255,7 +253,7 @@ void ModeRTL::move_to_home() {
         increase_throttle(target_altitude - current_altitude);
     }
 
-    attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(0, desired_pitch * 100, 0);
+    attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(0, copter.aparm.angle_max, 0);
 }
 
 // loiterathome_start - initialise return to home
