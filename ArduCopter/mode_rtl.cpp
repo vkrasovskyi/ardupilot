@@ -144,17 +144,18 @@ void ModeRTL::climb_start() {
     _state_complete = false;
 
     // set the destination
-    if (is_gps_available() && (!wp_nav->set_wp_destination_loc(rtl_path.climb_target) ||
-                               !wp_nav->set_wp_destination_next_loc(rtl_path.return_target))) {
-        // this should not happen because rtl_build_path will have checked terrain data was available
-        gcs().send_text(MAV_SEVERITY_CRITICAL, "RTL: unexpected error setting climb target");
-        AP::logger().Write_Error(LogErrorSubsystem::NAVIGATION, LogErrorCode::FAILED_TO_SET_DESTINATION);
-        copter.set_mode(Mode::Number::LAND, ModeReason::TERRAIN_FAILSAFE);
-        return;
+    if (is_gps_available()) {
+        if (!wp_nav->set_wp_destination_loc(rtl_path.climb_target) || !wp_nav->set_wp_destination_next_loc(rtl_path.return_target)) {
+            // this should not happen because rtl_build_path will have checked terrain data was available
+            gcs().send_text(MAV_SEVERITY_CRITICAL, "RTL: unexpected error setting climb target");
+            AP::logger().Write_Error(LogErrorSubsystem::NAVIGATION, LogErrorCode::FAILED_TO_SET_DESTINATION);
+            copter.set_mode(Mode::Number::LAND, ModeReason::TERRAIN_FAILSAFE);
+            return;
+        }
+        auto_yaw.set_mode(AutoYaw::Mode::HOLD);
+    } else {
+        auto_yaw.set_mode(AutoYaw::Mode::FIXED);
     }
-
-    // hold current yaw during initial climb
-    auto_yaw.set_mode(AutoYaw::Mode::HOLD);
 }
 
 // rtl_return_start - initialise return to home
@@ -249,10 +250,18 @@ void ModeRTL::move_to_home() {
     float current_altitude = copter.current_loc.alt;
     float target_altitude = g.rtl_altitude;
 
+    // TODO: add decrease_throttle function for protect fly in high altitude
     if (current_altitude < target_altitude) {
         increase_throttle(target_altitude - current_altitude);
     }
 
+    // Set direction to home
+    int32_t return_bearing = wrap_360_cd(copter.initial_armed_bearing + 18000);
+
+    // set the new yaw direction
+    auto_yaw.set_yaw_angle_rate(return_bearing / 100, 0);
+
+    // move to home
     attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(0, copter.aparm.angle_max, 0);
 }
 
