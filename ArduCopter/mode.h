@@ -1405,6 +1405,7 @@ private:
 
     // Loiter timer - Records how long we have been in loiter
     uint32_t _loiter_start_time;
+    uint32_t _move_to_home_start_time;
 
     bool terrain_following_allowed;
 

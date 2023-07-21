@@ -152,16 +152,16 @@ void ModeRTL::climb_start() {
             copter.set_mode(Mode::Number::LAND, ModeReason::TERRAIN_FAILSAFE);
             return;
         }
-        auto_yaw.set_mode(AutoYaw::Mode::HOLD);
-    } else {
-        auto_yaw.set_mode(AutoYaw::Mode::FIXED);
     }
+
+    auto_yaw.set_mode(AutoYaw::Mode::HOLD);
 }
 
 // rtl_return_start - initialise return to home
 void ModeRTL::return_start() {
     _state = SubMode::RETURN_HOME;
     _state_complete = false;
+    _move_to_home_start_time = millis();
 
     if (is_gps_available() && (!wp_nav->set_wp_destination_loc(rtl_path.return_target))) {
         // failure must be caused by missing terrain data, restart RTL
@@ -230,12 +230,6 @@ void ModeRTL::climb_return_nogps_run() {
 // move_to_home - implements the initial climb, return home and descent portions of RTL which all rely on the wp controller
 //      called by rtl_run at 100hz or more
 void ModeRTL::move_to_home() {
-    // if not armed set throttle to zero and exit immediately
-    if (is_disarmed_or_landed()) {
-        make_safe_ground_handling();
-        return;
-    }
-
     // set motors to full range
     motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::THROTTLE_UNLIMITED);
 
@@ -251,18 +245,19 @@ void ModeRTL::move_to_home() {
     float target_altitude = g.rtl_altitude;
 
     // TODO: add decrease_throttle function for protect fly in high altitude
-    if (current_altitude < target_altitude) {
+    if (current_altitude < target_altitude || (target_altitude - current_altitude) > 100) {
+        attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(0, 0, 0);
         increase_throttle(target_altitude - current_altitude);
+        return;
     }
 
-    // Set direction to home
-    int32_t return_bearing = wrap_360_cd(copter.initial_armed_bearing + 18000);
-
-    // set the new yaw direction
-    auto_yaw.set_yaw_angle_rate(return_bearing / 100, 0);
+    if ((millis() - _move_to_home_start_time) < 5 * 1000) {
+        return;
+    }
 
     // move to home
-    attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(0, copter.aparm.angle_max, 0);
+    float return_direction_rad = radians(wrap_360_cd(copter.initial_armed_bearing + 18000) / 100.0f);
+    attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(0, copter.aparm.angle_max, return_direction_rad);
 }
 
 // loiterathome_start - initialise return to home
