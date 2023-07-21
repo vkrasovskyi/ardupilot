@@ -37,7 +37,7 @@ const AP_Param::GroupInfo AP_VideoTX::var_info[] = {
     // @Param: POWER
     // @DisplayName: Video Transmitter Power Level
     // @Description: Video Transmitter Power Level. Different VTXs support different power levels, the power level chosen will be rounded down to the nearest supported power level
-    // @Range: 1 2500
+    // @Range: 1 1000
     AP_GROUPINFO("POWER",    2, AP_VideoTX, _power_mw, 0),
 
     // @Param: CHANNEL
@@ -72,7 +72,7 @@ const AP_Param::GroupInfo AP_VideoTX::var_info[] = {
     // @Param: MAX_POWER
     // @DisplayName: Video Transmitter Max Power Level
     // @Description: Video Transmitter Maximum Power Level. Different VTXs support different power levels, this prevents the power aux switch from requesting too high a power level. The switch supports 6 power levels and the selected power will be a subdivision between 0 and this setting.
-    // @Range: 25 2500
+    // @Range: 25 1000
     AP_GROUPINFO("MAX_POWER", 7, AP_VideoTX, _max_power_mw, 800),
 
     AP_GROUPEND
@@ -113,7 +113,6 @@ AP_VideoTX::PowerLevel AP_VideoTX::_power_levels[VTX_MAX_POWER_LEVELS] = {
     //{ 0x13, 600,  28, 0xFF },
     { 3,    800,  29, 40   },
     { 0x13, 1000, 30, 0xFF }, // only in SA 2.1
-    { 0x13, 2500, 34, 0xFF }, // only in SA 2.1
     { 0xFF, 0,    0,  0XFF, PowerActive::Inactive }  // slot reserved for a custom power level
 };
 
