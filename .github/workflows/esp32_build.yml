@@ -146,7 +146,7 @@ jobs:
       fail-fast: false  # don't cancel if a job from the matrix fails
       matrix:
         config: [
-            esp32buzz,
+            MambaH743v4,
         ]
         gcc: [10]
 
