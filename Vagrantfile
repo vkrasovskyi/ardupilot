@@ -28,9 +28,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       #   vb.gui = true
       #
       #   # Use VBoxManage to customize the VM. For example to change memory:
-      vb.customize ["modifyvm", :id, "--memory", "3192"]
+      vb.customize ["modifyvm", :id, "--memory", "8000"]
       vb.customize ["modifyvm", :id, "--ioapic", "on"]
-      vb.customize ["modifyvm", :id, "--cpus", "2"]
+      vb.customize ["modifyvm", :id, "--cpus", "12"]
       # Make some effort to avoid clock skew
       vb.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", "5000"]
       vb.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-start"]
