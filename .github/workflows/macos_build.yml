@@ -142,8 +142,7 @@ jobs:
       fail-fast: false  # don't cancel if a job from the matrix fails
       matrix:
         config: [
-            sitl,
-            CubeOrange,
+            MambaH743v4,
         ]
 
     steps:
