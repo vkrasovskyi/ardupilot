@@ -2,5 +2,3 @@
 SERVO9_FUNCTION 120
 # Default VTX power to on
 RELAY_DEFAULT 1
-# Enable scripting
-SCR_ENABLE 1
