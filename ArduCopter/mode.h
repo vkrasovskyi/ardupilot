@@ -94,6 +94,7 @@ public:
     virtual bool set_speed_xy(float speed_xy_cms) {return false;}
     virtual bool set_speed_up(float speed_xy_cms) {return false;}
     virtual bool set_speed_down(float speed_xy_cms) {return false;}
+    virtual bool is_gps_available() {return false;}
 
     int32_t get_alt_above_ground_cm(void);
 
@@ -1266,7 +1267,7 @@ public:
     }
     void run(bool disarm_on_land);
 
-    bool requires_GPS() const override { return true; }
+    bool requires_GPS() const override { return false; }
     bool has_manual_throttle() const override { return false; }
     bool allows_arming(AP_Arming::Method method) const override { return false; };
     bool is_autopilot() const override { return true; }
@@ -1277,6 +1278,8 @@ public:
     bool get_wp(Location &loc) const override;
 
     bool use_pilot_yaw() const override;
+
+    bool is_gps_available() override;
 
     // RTL states
     enum class SubMode : uint8_t {
@@ -1325,10 +1328,13 @@ private:
     void climb_start();
     void return_start();
     void climb_return_run();
+    void climb_return_nogps_run();
     void loiterathome_start();
     void loiterathome_run();
     void build_path();
+    void move_to_home();
     void compute_return_target();
+    void increase_throttle(float alt_diff);
 
     SubMode _state = SubMode::INITIAL_CLIMB;  // records state of rtl (initial climb, returning home, etc)
     bool _state_complete = false; // set to true if the current state is completed
@@ -1351,6 +1357,8 @@ private:
 
     // Loiter timer - Records how long we have been in loiter
     uint32_t _loiter_start_time;
+
+    uint32_t _move_to_home_start_time;
 
     bool terrain_following_allowed;
 
