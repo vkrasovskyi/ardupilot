@@ -229,6 +229,16 @@ void ModeRTL::climb_return_nogps_run() {
         return;
     }
 
+    // process pilot's yaw input
+    float target_yaw_rate = 0;
+    if (!copter.failsafe.radio && use_pilot_yaw()) {
+        // get pilot's desired yaw rate
+        target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->norm_input_dz());
+        if (!is_zero(target_yaw_rate)) {
+            auto_yaw.set_mode(AUTO_YAW_HOLD);
+        }
+    }
+
     // set motors to full range
     motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::THROTTLE_UNLIMITED);
 
@@ -238,6 +248,15 @@ void ModeRTL::climb_return_nogps_run() {
 
     // call attitude controller with auto yaw
     attitude_control->input_thrust_vector_heading(pos_control->get_thrust_vector(), auto_yaw.get_heading());
+
+    // call attitude controller
+    if (auto_yaw.mode() == AUTO_YAW_HOLD) {
+        // roll & pitch from waypoint controller, yaw rate from pilot
+        attitude_control->input_thrust_vector_rate_heading(wp_nav->get_thrust_vector(), target_yaw_rate);
+    } else {
+        // roll, pitch from waypoint controller, yaw heading from auto_heading()
+        attitude_control->input_thrust_vector_heading(wp_nav->get_thrust_vector(), auto_yaw.yaw());
+    }
 
     // Get current altitude from barometer
     float current_altitude = copter.current_loc.alt;
