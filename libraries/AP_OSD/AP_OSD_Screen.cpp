@@ -268,6 +268,22 @@ const AP_Param::GroupInfo AP_OSD_Screen::var_info[] = {
     // @Range: 0 15
     AP_SUBGROUPINFO(heading, "HEADING", 15, AP_OSD_Screen, AP_OSD_Setting),
 
+    // @Param: TARGET_EN
+    // @DisplayName: TARGET_EN
+    // @Description: Displays target
+    // @Values: 0:Disabled,1:Enabled
+
+    // @Param: TARGET_X
+    // @DisplayName: TARGET_X
+    // @Description: Horizontal position on screen
+    // @Range: 0 29
+
+    // @Param: TARGET_Y
+    // @DisplayName: TARGET_Y
+    // @Description: Vertical position on screen
+    // @Range: 0 15
+    AP_SUBGROUPINFO(targer, "TARGET", 15, AP_OSD_Screen, AP_OSD_Setting),
+
     // @Param: THROTTLE_EN
     // @DisplayName: THROTTLE_EN
     // @Description: Displays actual throttle percentage being sent to motor(s)
@@ -1566,6 +1582,18 @@ void AP_OSD_Screen::draw_gspeed(uint8_t x, uint8_t y)
     draw_speed(x + 1, y, angle, length);
 }
 
+void AP_OSD_Screen::draw_target(uint8_t x, uint8_t y)
+{
+    backend->write(x - 1, y - 1, false, "%c", SYMBOL(SYM_HEADING_LINE));
+    backend->write(x - 1, y    , false, "%c", SYMBOL(SYM_HEADING_LINE));
+    backend->write(x - 1, y + 1, false, "%c", SYMBOL(SYM_HEADING_LINE));
+    backend->write(x    , y - 1, false, "%c", SYMBOL(SYM_HEADING_LINE));
+    backend->write(x    , y + 1, false, "%c", SYMBOL(SYM_HEADING_LINE));
+    backend->write(x + 1, y - 1, false, "%c", SYMBOL(SYM_HEADING_LINE));
+    backend->write(x + 1, y    , false, "%c", SYMBOL(SYM_HEADING_LINE));
+    backend->write(x + 1, y + 1, false, "%c", SYMBOL(SYM_HEADING_LINE));
+}
+
 //Thanks to betaflight/inav for simple and clean artificial horizon visual design
 void AP_OSD_Screen::draw_horizon(uint8_t x, uint8_t y)
 {
@@ -2296,6 +2324,7 @@ void AP_OSD_Screen::draw(void)
     DRAW_SETTING(vspeed);
     DRAW_SETTING(throttle);
     DRAW_SETTING(heading);
+    DRAW_SETTING(target);
     DRAW_SETTING(wind);
     DRAW_SETTING(home);
 #if AP_RPM_ENABLED

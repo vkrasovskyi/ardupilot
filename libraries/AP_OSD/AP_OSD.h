@@ -180,6 +180,7 @@ private:
     AP_OSD_Setting home{true, 14, 1};
     AP_OSD_Setting throttle{true, 24, 11};
     AP_OSD_Setting heading{true, 13, 2};
+    AP_OSD_Setting target{true, 14, 2};
     AP_OSD_Setting compass{true, 15, 3};
     AP_OSD_Setting wind{false, 2, 12};
     AP_OSD_Setting aspeed{false, 2, 13};
@@ -260,6 +261,7 @@ private:
     void draw_home(uint8_t x, uint8_t y);
     void draw_throttle(uint8_t x, uint8_t y);
     void draw_heading(uint8_t x, uint8_t y);
+    void draw_target(uint8_t x, uint8_t y);
 #if AP_RPM_ENABLED
     void draw_rrpm(uint8_t x, uint8_t y);
 #endif
