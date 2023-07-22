@@ -15,6 +15,7 @@ else
     rm -rf jsbsim
     git clone https://github.com/JSBSim-Team/jsbsim.git
     cd jsbsim
+    git checkout v1.1.13
     mkdir build
     cd build
     cmake -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -mtune=native" -DCMAKE_C_FLAGS_RELEASE="-O3 -march=native -mtune=native" -DCMAKE_BUILD_TYPE=Release ..
