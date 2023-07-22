@@ -13,7 +13,7 @@ jobs:
       matrix:
         config: [
             sitl,
-            CubeOrange,
+            MambaH743v4,
         ]
 
     steps:
