@@ -208,7 +208,7 @@ jobs:
           echo $PATH
           arm-none-eabi-g++ --version
           git config --global --add safe.directory ${GITHUB_WORKSPACE}
-          pip install empy
+          pip install empy pexpect
           #sleep 900
           ./waf configure --board MambaH743v4
           ./waf build  -j 10 -p
