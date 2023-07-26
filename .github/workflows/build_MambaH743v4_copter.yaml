@@ -1,0 +1,260 @@
+name: Build_MambaH743v4 
+
+on:
+  push:
+    paths-ignore:
+      # remove other vehicles
+      - 'AntennaTracker/**'
+      - 'ArduPlane/**'
+      - 'ArduSub/**'
+      - 'Blimp/**'
+      - 'Rover/**'
+      # remove non SITL HAL
+      - 'libraries/AP_HAL_ChibiOS/**'
+      - 'libraries/AP_HAL_ESP32/**'
+      # remove non SITL directories
+      - 'Tools/AP_Bootloader/**'
+      - 'Tools/AP_Periph/**'
+      - 'Tools/bootloaders/**'
+      - 'Tools/CHDK-Script/**'
+      - 'Tools/CodeStyle/**'
+      - 'Tools/completion/**'
+      - 'Tools/CPUInfo/**'
+      - 'Tools/debug/**'
+      - 'Tools/environment_install/**'
+      - 'Tools/FilterTestTool/**'
+      - 'Tools/Frame_params/**'
+      - 'Tools/geotag/**'
+      - 'Tools/GIT_Test/**'
+      - 'Tools/gittools/**'
+      - 'Tools/Hello/**'
+      - 'Tools/IO_Firmware/**'
+      - 'Tools/Linux_HAL_Essentials/**'
+      - 'Tools/LogAnalyzer/**'
+      - 'Tools/Pozyx/**'
+      - 'Tools/PrintVersion.py'
+      - 'Tools/simulink/**'
+      - 'Tools/UDP_Proxy/**'
+      - 'Tools/vagrant/**'
+      - 'Tools/Vicon/**'
+      # Discard python file from Tools/scripts as not used
+      - 'Tools/scripts/**.py'
+      - 'Tools/scripts/build_sizes/**'
+      - 'Tools/scripts/build_tests/**'
+      - 'Tools/scripts/CAN/**'
+      - 'Tools/scripts/signing/**'
+      # Remove other vehicles autotest
+      - 'Tools/autotest/antennatracker.py'
+      - 'Tools/autotest/arduplane.py'
+      - 'Tools/autotest/ardusub.py'
+      - 'Tools/autotest/balancebot.py'
+      - 'Tools/autotest/location.txt'
+      - 'Tools/autotest/quadplane.py'
+      - 'Tools/autotest/rover.py'
+      - 'Tools/autotest/sailboat.py'
+      - 'Tools/autotest/swarminit.txt'
+      # Remove markdown files as irrelevant
+      - '**.md'
+      # Remove dotfile at root directory
+      - './.dir-locals.el'
+      - './.dockerignore'
+      - './.editorconfig'
+      - './.flake8'
+      - './.gitattributes'
+      - './.github'
+      - './.gitignore'
+      - './.pre-commit-config.yaml'
+      - './.pydevproject'
+      - './.valgrind-suppressions'
+      - './.valgrindrc'
+      - 'Dockerfile'
+      - 'Vagrantfile'
+      - 'Makefile'
+      # Remove some directories check
+      - '.vscode/**'
+      - '.github/ISSUE_TEMPLATE/**'
+
+
+  pull_request:
+    paths-ignore:
+      # remove other vehicles
+      - 'AntennaTracker/**'
+      - 'ArduPlane/**'
+      - 'ArduSub/**'
+      - 'Blimp/**'
+      - 'Rover/**'
+      # remove non SITL HAL
+      - 'libraries/AP_HAL_ChibiOS/**'
+      - 'libraries/AP_HAL_ESP32/**'
+      # remove non SITL directories
+      - 'Tools/AP_Bootloader/**'
+      - 'Tools/AP_Periph/**'
+      - 'Tools/bootloaders/**'
+      - 'Tools/CHDK-Script/**'
+      - 'Tools/CodeStyle/**'
+      - 'Tools/completion/**'
+      - 'Tools/CPUInfo/**'
+      - 'Tools/debug/**'
+      - 'Tools/environment_install/**'
+      - 'Tools/FilterTestTool/**'
+      - 'Tools/Frame_params/**'
+      - 'Tools/geotag/**'
+      - 'Tools/GIT_Test/**'
+      - 'Tools/gittools/**'
+      - 'Tools/Hello/**'
+      - 'Tools/IO_Firmware/**'
+      - 'Tools/Linux_HAL_Essentials/**'
+      - 'Tools/LogAnalyzer/**'
+      - 'Tools/Pozyx/**'
+      - 'Tools/PrintVersion.py'
+      - 'Tools/simulink/**'
+      - 'Tools/UDP_Proxy/**'
+      - 'Tools/vagrant/**'
+      - 'Tools/Vicon/**'
+      # Discard python file from Tools/scripts as not used
+      - 'Tools/scripts/**.py'
+      - 'Tools/scripts/build_sizes/**'
+      - 'Tools/scripts/build_tests/**'
+      - 'Tools/scripts/CAN/**'
+      - 'Tools/scripts/signing/**'
+      # Remove other vehicles autotest
+      - 'Tools/autotest/antennatracker.py'
+      - 'Tools/autotest/arduplane.py'
+      - 'Tools/autotest/ardusub.py'
+      - 'Tools/autotest/balancebot.py'
+      - 'Tools/autotest/location.txt'
+      - 'Tools/autotest/quadplane.py'
+      - 'Tools/autotest/rover.py'
+      - 'Tools/autotest/sailboat.py'
+      - 'Tools/autotest/swarminit.txt'
+      # Remove markdown files as irrelevant
+      - '**.md'
+      # Remove dotfile at root directory
+      - './.dir-locals.el'
+      - './.dockerignore'
+      - './.editorconfig'
+      - './.flake8'
+      - './.gitattributes'
+      - './.github'
+      - './.gitignore'
+      - './.pre-commit-config.yaml'
+      - './.pydevproject'
+      - './.valgrind-suppressions'
+      - './.valgrindrc'
+      - 'Dockerfile'
+      - 'Vagrantfile'
+      - 'Makefile'
+      # Remove some directories check
+      - '.vscode/**'
+      - '.github/ISSUE_TEMPLATE/**'
+
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{github.workflow}}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+      deployments: write
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    #runs-on: self-hosted
+    container: 
+      image: sharks/ardupilot_mamba_img:2.0
+      #ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.0.29
+    strategy:
+      fail-fast: false  # don't cancel if a job from the matrix fails
+      matrix:
+        toolchain: [
+            #base,  # GCC
+            clang,
+        ]
+    steps:
+      # git checkout the PR
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      # Put ccache into github cache for faster build
+      #- name: Prepare ccache timestamp
+      #  id: ccache_cache_timestamp
+      #  run: |
+      #    NOW=$(date -u +"%F-%T")
+      #    echo "timestamp=${NOW}" >> $GITHUB_OUTPUT
+      #- name: ccache cache files
+      #  uses: actions/cache@v3
+      #  with:
+      #    path: ~/.ccache
+      #    key: ${{github.workflow}}-ccache-${{ matrix.toolchain }}-${{steps.ccache_cache_timestamp.outputs.timestamp}}
+      #    restore-keys: ${{github.workflow}}-ccache-${{ matrix.toolchain }}-  # restore ccache from either previous build on this branch or on master
+      #- name: setup ccache
+      #  run: |
+      #    . .github/workflows/ccache.env
+      - name: install_pack 
+        shell: bash
+        run: |
+          apt-get install -y curl
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+      - name: build copter ${{ matrix.toolchain }}
+        shell: bash
+        run: |
+          mkdir -p /__w/ardupilot/ardupilot && git config --global --add safe.directory /__w/ardupilot/ardupilot && git config --system --add safe.directory /__w/ardupilot/ardupilot
+          export PATH=export PATH=/usr/lib/ccache:/data/ardupilot/Tools/autotest:/opt/gcc-arm-none-eabi-10-2020-q4-major/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          echo $PATH
+          arm-none-eabi-g++ --version
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
+          #sleep 900
+          ./waf configure --board MambaH743v4
+          ./waf build  -j 10 -p
+          ccache -s
+          ccache -z
+
+      - name: Generate artifact name
+        id: generate-name
+        run: |
+          echo "::set-output name=MambaH743v4-artifact::${{ github.event.repository.name }}.${{ github.ref_name }}.${{ github.run_id }}.zip"
+
+      - name: Archive MambaH743v4 artifacts
+        uses: actions/upload-artifact@v2
+        with:
+           #name: ${{ steps.generate-name.outputs.artifact }}
+           #MambaH743v4-$(date +%Y%m%d%H%M%S) 
+           name: "MambaH743v4-v1"
+           path: /__w/ardupilot/ardupilot/build/MambaH743v4/bin
+           retention-days: 7
+
+
+      - name: zip-build-MambaH743v4
+        run: tar -czvf ./MambaH743v4-bin.tar.gz /__w/ardupilot/ardupilot/build/MambaH743v4/bin 
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          #release_name: MambaH743v4-release
+          #tag_name: "lasts" 
+          release_name: MambaH743v4-release-v${{ steps.date.outputs.date }}
+          tag_name: ${{ steps.date.outputs.date }} 
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: upload release MambaH743v4-release 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./MambaH743v4-bin.tar.gz 
+          asset_name: MambaH743v4-bin-v${{ github.run_number }}.tar.gz 
+          asset_content_type: application/gzip
